@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+
+<SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-color: #0a0a0a; -fx-border-color: #0a0a0a;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.TableViewController">
+  <items>
+      <TableView fx:id="leftHandSideTable" prefHeight="1920.0" prefWidth="1080.0" style="-fx-border-color: #ffffff1a; -fx-background-color: #0a0a0a;">
+         <columns>
+            <TableColumn fx:id="lhs_uuid" prefWidth="134.22055053710938" style="-fx-background-color: #0a0a0a; -fx-border-color: ffffff1a;" text="Student UUID" />
+            <TableColumn fx:id="lhs_name" prefWidth="75.0" style="-fx-background-color: #0a0a0a; -fx-border-color: ffffff1a;" text="Name" />
+            <TableColumn fx:id="lhs_email" prefWidth="75.0" style="-fx-background-color: #0a0a0a; -fx-border-color: ffffff1a;" text="Email" />
+            <TableColumn fx:id="lhs_gpa" prefWidth="75.0" style="-fx-background-color: #0a0a0a; -fx-border-color: ffffff1a;" text="GPA" />
+         </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+      <TableView fx:id="rightHandSideTable" prefHeight="1920.0" prefWidth="1080.0" style="-fx-border-color: #ffffff1a; -fx-background-color: #0a0a0a;">
+         <columns>
+            <TableColumn fx:id="rhs_uuid" prefWidth="134.22055053710938" style="-fx-background-color: #0a0a0a;" text="Student UUID" />
+            <TableColumn fx:id="rhs_name" prefWidth="75.0" style="-fx-background-color: #0a0a0a;" text="Name" />
+            <TableColumn fx:id="rhs_email" prefWidth="75.0" style="-fx-background-color: #0a0a0a;" text="Email" />
+            <TableColumn fx:id="rhs_gpa" prefWidth="75.0" style="-fx-background-color: #0a0a0a;" text="GPA" />
+         </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+  </items>
+</SplitPane>

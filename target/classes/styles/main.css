@@ -1,0 +1,5 @@
+/* Super basic generic styles for this application so its not so ugly */
+.split-pane > .split-pane-divider {
+  -fx-background-color: #ffffff1a;
+  -fx-padding: 0 2 0 2;
+}
