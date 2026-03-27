@@ -42,7 +42,7 @@ public class TableViewController implements Initializable {
     @FXML
     private TableColumn<StudentTableRecord, String> rhs_email;
     @FXML
-    private TableColumn<StudentTableRecord, String> rhs_gpa;
+    private TableColumn<StudentTableRecord, Double> rhs_gpa;
 
     @FXML
     private Button aboutButton;
@@ -53,6 +53,10 @@ public class TableViewController implements Initializable {
         leftHandSideTable.setItems(students);
         setLHSTableData();
 
+        ObservableList<StudentTableRecord> gpaSortedStudends = FXCollections.observableList(Database.getInstance().getStudentsSortedByGpaAsList());
+        rightHandSideTable.setItems(gpaSortedStudends);
+        setRHSTableData();
+
         aboutButton.setOnAction(event -> RenderAboutWindow(event));
     }
 
@@ -61,6 +65,13 @@ public class TableViewController implements Initializable {
         lhs_name.setCellValueFactory(data -> data.getValue().nameProperty());
         lhs_email.setCellValueFactory(data -> data.getValue().emailProperty());
         lhs_gpa.setCellValueFactory(data -> data.getValue().gpaProperty().asObject());
+    }
+
+     private void setRHSTableData() {
+        rhs_uuid.setCellValueFactory(data -> data.getValue().uuidProperty());
+        rhs_name.setCellValueFactory(data -> data.getValue().nameProperty());
+        rhs_email.setCellValueFactory(data -> data.getValue().emailProperty());
+        rhs_gpa.setCellValueFactory(data -> data.getValue().gpaProperty().asObject());
     }
 
     private void RenderAboutWindow(ActionEvent event) {

@@ -2,6 +2,9 @@ package models;
 
 import java.util.UUID;
 
+/**
+ * Helper class for storing students in the Priority Queue
+ */
 public class GPARecord implements Comparable<GPARecord>  {
     private UUID uuid;
     private double GPA;

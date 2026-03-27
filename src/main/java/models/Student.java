@@ -2,6 +2,9 @@ package models;
 
 import java.util.UUID;
 
+/**
+ * Student 
+ */
 public class Student { 
     private UUID uuid;
     private String name;

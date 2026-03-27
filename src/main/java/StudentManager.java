@@ -105,7 +105,7 @@ public class StudentManager extends Application {
     }
 
     public static void main(String[] args) {
-        // Run via CMD with mvn clean javafx:run
+        // Run via CMD with 'mvn clean javafx:run'
         launch();
     }
 }

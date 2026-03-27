@@ -1,11 +1,15 @@
 package models;
 
 import java.util.UUID;
+
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+/**
+ * Helper class based on Student which makes it easier to render the content in the table
+ */
 public final class StudentTableRecord extends Student {
 
     private StringProperty uuidProp;
