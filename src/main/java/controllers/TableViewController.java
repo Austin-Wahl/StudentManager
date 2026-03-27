@@ -1,13 +1,22 @@
 package controllers;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import models.Database;
 import models.StudentTableRecord;
 
@@ -35,19 +44,43 @@ public class TableViewController implements Initializable {
     @FXML
     private TableColumn<StudentTableRecord, String> rhs_gpa;
 
+    @FXML
+    private Button aboutButton;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ObservableList<StudentTableRecord> students = FXCollections.observableList(Database.getInstance().getStudentsAsList());
         leftHandSideTable.setItems(students);
         setLHSTableData();
+
+        aboutButton.setOnAction(event -> RenderAboutWindow(event));
     }
 
     private void setLHSTableData() {
-        // nameCol.setCellValueFactory(data -> data.getValue().nameProperty());
         lhs_uuid.setCellValueFactory(data -> data.getValue().uuidProperty());
         lhs_name.setCellValueFactory(data -> data.getValue().nameProperty());
         lhs_email.setCellValueFactory(data -> data.getValue().emailProperty());
         lhs_gpa.setCellValueFactory(data -> data.getValue().gpaProperty().asObject());
     }
+
+    private void RenderAboutWindow(ActionEvent event) {
+        try {
+            Stage stage = new Stage();
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/Views/About.fxml")
+            );
+            Scene scene = new Scene(root);
+
+            stage.setTitle("About this project");
+            stage.setScene(scene);
+            stage.initOwner(aboutButton.getScene().getWindow());
+            stage.initModality(Modality.WINDOW_MODAL);
+
+            stage.show();
+        } catch (IOException ex) {
+            System.out.println("Failed to load About window");
+        }
+    }
+
  
 }

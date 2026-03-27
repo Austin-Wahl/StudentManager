@@ -30,7 +30,7 @@
                            style="-fx-text-fill: white; -fx-font-size: 13;" />
                     <Label text="Data Structures: HashTable and PriorityQueue"
                            style="-fx-text-fill: white; -fx-font-size: 13;" />
-                    <Label text="Members: Austin Wahl, Antonio Nieto, Abel Martinez"
+                    <Label text="Members: Austin Wahl, Antonio Nieto, Abel Martinez, Matthew Burch, Alejandro Monsivais"
                            style="-fx-text-fill: white; -fx-font-size: 13;" />
                 </children>
             </VBox>
