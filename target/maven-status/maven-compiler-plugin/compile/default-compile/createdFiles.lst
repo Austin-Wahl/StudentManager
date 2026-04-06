@@ -2,6 +2,7 @@ controllers/LoadingViewController.class
 models/Student.class
 models/Database.class
 controllers/ErrorViewController.class
+controllers/TableViewController$1.class
 StudentManager$1.class
 models/StudentTableRecord.class
 controllers/TableViewController.class
