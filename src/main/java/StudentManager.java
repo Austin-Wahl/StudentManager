@@ -1,8 +1,13 @@
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import atlantafx.base.theme.PrimerDark;
 import controllers.ErrorViewController;
 import controllers.TableViewController;
 import javafx.application.Application;
@@ -12,15 +17,22 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import models.Database;
 import utils.DataParser;
 
 // Main entry point of the application
 public class StudentManager extends Application {
 
     static final String APPLICATION_TITLE = "Student Manager";
+    InputStream fileStream;
+    private static final Path DATA_PATH = Paths.get(
+        System.getProperty("user.home"), "StudentManager", "data.txt"
+    );
 
     @Override
     public void start(Stage stage) throws IOException {
+        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+
         // Load parent FXML resource
         Parent root = FXMLLoader.load(
             getClass().getResource("Views/Loading.fxml")
@@ -79,6 +91,10 @@ public class StudentManager extends Application {
                     getClass().getResource("Views/StudentManager.fxml")
                 );
                 Parent tableParent = tableLoader.load();
+                tableParent
+                .getStylesheets()
+                .add(getClass().getResource("styles/main.css").toExternalForm());
+
                 TableViewController tvc = tableLoader.getController();
                 // We dont need to pass any data directly to the VC cuz the Database class uses the Singleton design pattern.
                 stage.setScene(new Scene(tableParent));
@@ -94,18 +110,37 @@ public class StudentManager extends Application {
     }
 
     /**
-     * Reads in the test data from data.txt and passes it to data structures
+     * Reads in the test data from data.txt and passes it to data structures. Additionally,
+     * this copies the content to a new file because i guess u cant write to bundled resources
      */
     private void initializeDataFromFile() throws IOException {
-        InputStream fileStream = getClass().getResourceAsStream("data.txt");
-        BufferedReader bufferedDataFileReader = new BufferedReader(
-            new InputStreamReader(fileStream)
+        // If the file doesnt exist, just copy the resource to the new location
+        if (!Files.exists(DATA_PATH)) {
+            Files.createDirectories(DATA_PATH.getParent());
+
+            try (InputStream in = getClass().getResourceAsStream("data.txt")) {
+                Files.copy(in, DATA_PATH);
+            }
+        }
+        BufferedReader bufferedDataFileReader;
+        bufferedDataFileReader = new BufferedReader(
+                new FileReader(new File(DATA_PATH.toAbsolutePath().toString()))
         );
+        // DATA_PATH.
         DataParser.createDatabaseInstanceAndWriteData(bufferedDataFileReader);
     }
 
     public static void main(String[] args) {
         // Run via CMD with 'mvn clean javafx:run'
         launch();
+    }
+
+    @Override
+    public void stop() {
+        try {
+            Database.getInstance().save(DATA_PATH.toAbsolutePath().toString());
+        } catch (Exception e) {
+            System.out.print(e.getMessage());
+        }
     }
 }

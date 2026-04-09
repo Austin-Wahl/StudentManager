@@ -30,6 +30,10 @@ public class Student {
         return this.GPA;
     }
 
+    public String getEmail() {
+        return this.email;
+    }
+
     @Override
     public String toString() {
         String UUID_STRING = uuid.toString();

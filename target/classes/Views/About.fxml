@@ -16,7 +16,7 @@
                   <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="65.0" prefWidth="231.0" HBox.hgrow="NEVER">
                      <children>
                         <Text layoutX="16.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="About this project" />
-                        <Text fill="#676767" layoutX="16.0" layoutY="46.0" strokeType="OUTSIDE" strokeWidth="0.0" text="StudentManager is a simple CRUD application built for UTSA CS 2123." wrappingWidth="214.93408203125">
+                        <Text layoutX="16.0" layoutY="46.0" strokeType="OUTSIDE" strokeWidth="0.0" text="StudentManager is a simple CRUD application built for UTSA CS 2123." wrappingWidth="214.93408203125">
                            <font>
                               <Font size="11.0" />
                            </font>
@@ -30,12 +30,12 @@
                   <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" prefWidth="200.0" HBox.hgrow="NEVER">
                      <children>
                         <Text layoutX="16.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Custom Data Structures" />
-                        <Text fill="#676767" layoutX="16.0" layoutY="46.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Priority Queue - Sorts students by GPA" wrappingWidth="214.93408203125">
+                        <Text layoutX="16.0" layoutY="46.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Priority Queue - Sorts students by GPA" wrappingWidth="214.93408203125">
                            <font>
                               <Font size="11.0" />
                            </font>
                         </Text>
-                        <Text fill="#676767" layoutX="16.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hash Map - Stores students by ID for easy searching" wrappingWidth="214.93408203125">
+                        <Text  layoutX="16.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hash Map - Stores students by ID for easy searching" wrappingWidth="214.93408203125">
                            <font>
                               <Font size="11.0" />
                            </font>
@@ -51,27 +51,27 @@
                         <VBox prefHeight="200.0" prefWidth="100.0" spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Project By" />
-                              <Text fill="#676767" strokeType="OUTSIDE" strokeWidth="0.0" text="Austin Wahl" wrappingWidth="214.93408203125">
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Austin Wahl" wrappingWidth="214.93408203125">
                                  <font>
                                     <Font size="11.0" />
                                  </font>
                               </Text>
-                              <Text fill="#676767" strokeType="OUTSIDE" strokeWidth="0.0" text="Antonio Nieto" wrappingWidth="214.93408203125">
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Antonio Nieto" wrappingWidth="214.93408203125">
                                  <font>
                                     <Font size="11.0" />
                                  </font>
                               </Text>
-                              <Text fill="#676767" strokeType="OUTSIDE" strokeWidth="0.0" text="Abel Martinez" wrappingWidth="214.93408203125">
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Abel Martinez" wrappingWidth="214.93408203125">
                                  <font>
                                     <Font size="11.0" />
                                  </font>
                               </Text>
-                              <Text fill="#676767" strokeType="OUTSIDE" strokeWidth="0.0" text="Matthew Burch" wrappingWidth="214.93408203125">
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Matthew Burch" wrappingWidth="214.93408203125">
                                  <font>
                                     <Font size="11.0" />
                                  </font>
                               </Text>
-                              <Text fill="#676767" strokeType="OUTSIDE" strokeWidth="0.0" text="Alejandro Monsivais " wrappingWidth="214.93408203125">
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Alejandro Monsivais " wrappingWidth="214.93408203125">
                                  <font>
                                     <Font size="11.0" />
                                  </font>

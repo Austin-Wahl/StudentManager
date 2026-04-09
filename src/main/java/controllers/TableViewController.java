@@ -23,6 +23,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.Database;
+import models.Student;
 import models.StudentTableRecord;
 
 public class TableViewController implements Initializable {
@@ -60,10 +61,15 @@ public class TableViewController implements Initializable {
     @FXML
     private Button aboutButton;
     @FXML
+    private Button addStudentButton;
+    @FXML
     private TextField searchBar;
     @FXML
     private TabPane tabs;
     private Tab activeTab;
+
+    private ObservableList<StudentTableRecord> students = FXCollections.observableList(Database.getInstance().getStudentsAsList());
+    private ObservableList<StudentTableRecord> gpaSortedStudends = FXCollections.observableList(Database.getInstance().getStudentsSortedByGpaAsList());
 
     /**
      * Searching thread
@@ -77,7 +83,8 @@ public class TableViewController implements Initializable {
         LoadInitialGPADataset();
 
         aboutButton.setOnAction(event -> RenderAboutWindow(event));
-        
+        addStudentButton.setOnAction(event -> RenderAddStudentWindow(event));
+
         // Get the active tab. This is so we know what table to search on
         activeTab = tabs.getSelectionModel().getSelectedItem();
         tabs.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {
@@ -129,11 +136,35 @@ public class TableViewController implements Initializable {
             stage.setTitle("About this project");
             stage.setScene(scene);
             stage.initOwner(aboutButton.getScene().getWindow());
+            stage.setResizable(false);
             stage.initModality(Modality.WINDOW_MODAL);
 
             stage.show();
         } catch (IOException ex) {
             System.out.println("Failed to load About window");
+        }
+    }
+
+     private void RenderAddStudentWindow(ActionEvent event) {
+        try {
+            Stage stage = new Stage();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/AddStudent.fxml"));
+            Parent root = loader.load();
+
+            ((AddStudentViewController)loader.getController()).setTableViewController(this);
+
+            Scene scene = new Scene(root);
+            
+
+            stage.setTitle("Add Student");
+            stage.setScene(scene);
+            stage.initOwner(aboutButton.getScene().getWindow());
+            stage.setResizable(false);
+            stage.initModality(Modality.WINDOW_MODAL);
+
+            stage.show();
+        } catch (IOException ex) {
+            System.out.println("Failed to load Add Student window");
         }
     }
 
@@ -204,7 +235,7 @@ public class TableViewController implements Initializable {
      * Helper that loads the student dataset into the students table
      */
     private void LoadInitialStudentDataset() {
-        ObservableList<StudentTableRecord> students = FXCollections.observableList(Database.getInstance().getStudentsAsList());
+        // ObservableList<StudentTableRecord> students = FXCollections.observableList(Database.getInstance().getStudentsAsList());
         leftHandSideTable.setItems(students);
         setLHSTableData();
     }
@@ -213,9 +244,14 @@ public class TableViewController implements Initializable {
      * Helper that loads the gpa dataset into the gpa table
      */
     private void LoadInitialGPADataset() {
-        ObservableList<StudentTableRecord> gpaSortedStudends = FXCollections.observableList(Database.getInstance().getStudentsSortedByGpaAsList());
         rightHandSideTable.setItems(gpaSortedStudends);
         setRHSTableData();
     }
 
+    public void AddNewStudent(Student student) {
+        students.add(new StudentTableRecord(student));
+        gpaSortedStudends.add(new StudentTableRecord(student));
+        
+        Database.getInstance().createStudent(student);
+    }
 }

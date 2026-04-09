@@ -1,5 +1,10 @@
 package models;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
@@ -38,6 +43,19 @@ public class Database {
     }
 
     /**
+     * Creates a new student record
+     */
+    public StudentTableRecord createStudent(Student student) {
+        StudentTableRecord str = new StudentTableRecord(student.getUUID(), student.getName(), student.getEmail(), student.getGPA());
+        students.put(student.getUUID().toString(), str);
+
+        GPARecord temp = new GPARecord(student.getUUID(), student.getGPA());
+        gpaOrderedStudents.add(temp);
+
+        return str;
+    }
+
+    /**
      * Returns all the studens
      */
     public Hashtable<String, StudentTableRecord> getStudents() {
@@ -67,21 +85,6 @@ public class Database {
     }
 
     /**
-     * Returns a hash table of students by name
-     */
-    public Hashtable<String, StudentTableRecord> getStudentsByName(String name) {
-        Hashtable<String, StudentTableRecord> result = new Hashtable<String, StudentTableRecord>();
-
-        for(Map.Entry<String, StudentTableRecord> entry : students.entrySet()) {
-            if(entry.getValue().getName().equals(name)) {
-                result.put(entry.getKey(), entry.getValue());
-            }
-        }
-
-        return result;
-    }
-
-    /**
      * Returns list of students as an array
      */
     public StudentTableRecord[] getStudentsAsArray() {
@@ -106,5 +109,23 @@ public class Database {
         List<StudentTableRecord> values =  new ArrayList<StudentTableRecord>(this.getGPAOrderedStudents().values());
 
         return values;
+    }
+    
+    public boolean save(String fp) throws IOException {        
+        BufferedWriter bw = new BufferedWriter(new FileWriter(new File(fp)));
+
+        students.forEach((key, value) -> {
+            try {
+                bw.write(value.toString());
+                bw.write("\n");
+            } catch (IOException ex) {
+                System.out.println(ex.getMessage());
+            }
+        });
+
+        bw.flush();
+        bw.close();
+
+        return true;
     }
 }

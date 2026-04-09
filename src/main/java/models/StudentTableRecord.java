@@ -11,7 +11,6 @@ import javafx.beans.property.StringProperty;
  * Helper class based on Student which makes it easier to render the content in the table
  */
 public final class StudentTableRecord extends Student {
-
     private StringProperty uuidProp;
     public void setUUIDProp(UUID value) { uuidProperty().set(value.toString()); }
     public String getUuidProp() { return uuidProperty().get(); }
@@ -51,5 +50,13 @@ public final class StudentTableRecord extends Student {
         setNameProp(name);
         setEmailProp(email);
         setGpaProp(GPA);
+    }
+    public StudentTableRecord(Student student) {
+        super(student.getUUID(), student.getName(), student.getEmail(), student.getGPA());
+
+        setUUIDProp(student.getUUID());
+        setNameProp(student.getName());
+        setEmailProp(student.getEmail());
+        setGpaProp(student.getGPA());
     }
 }

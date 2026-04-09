@@ -22,7 +22,7 @@
                   <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" prefWidth="200.0" HBox.hgrow="NEVER">
                      <children>
                         <Text layoutX="16.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Student Manager" />
-                        <TextField layoutX="13.0" layoutY="36.0" promptText="Search" style="-fx-border-color: #eeeeee;" fx:id="searchBar">
+                        <TextField fx:id="searchBar" layoutX="13.0" layoutY="36.0" promptText="Search">
                            <font>
                               <Font size="12.0" />
                            </font>
@@ -32,12 +32,12 @@
                   <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" prefWidth="200.0" HBox.hgrow="NEVER" />
                   <AnchorPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" prefWidth="302.0" HBox.hgrow="NEVER">
                      <children>
-                        <Button layoutX="41.0" layoutY="14.0" mnemonicParsing="false" style="-fx-background-color: #f8f8f8; -fx-border-color: #eeeeee; -fx-border-radius: 5px;" text="About Project" textFill="#8d8d8d" fx:id="aboutButton">
+                        <Button fx:id="aboutButton" layoutX="41.0" layoutY="14.0" mnemonicParsing="false" text="About Project">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </Button>
-                        <Button layoutX="151.0" layoutY="14.0" mnemonicParsing="false" style="-fx-background-color: black; -fx-border-color: black; -fx-border-radius: 5px;" text="Add Student" textFill="WHITE">
+                        <Button layoutX="151.0" layoutY="14.0" mnemonicParsing="false" text="Add Student" fx:id="addStudentButton">
                            <font>
                               <Font size="14.0" />
                            </font>
@@ -46,16 +46,16 @@
                   </AnchorPane>
                </children>
             </HBox>
-            <HBox prefHeight="295.0" prefWidth="600.0" style="-fx-background-color: #ffffff;" VBox.vgrow="ALWAYS">
+            <HBox prefHeight="295.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
                <VBox.margin>
                   <Insets bottom="16.0" left="16.0" right="16.0" />
                </VBox.margin>
                <children>
-                  <TabPane prefHeight="295.0" prefWidth="612.0" stylesheets="@StudentManagerViews/styles.css" tabClosingPolicy="UNAVAILABLE" HBox.hgrow="ALWAYS" fx:id="tabs">
+                  <TabPane fx:id="tabs" prefHeight="295.0" prefWidth="612.0" tabClosingPolicy="UNAVAILABLE" HBox.hgrow="ALWAYS">
                     <tabs>
-                      <Tab style="-fx-background-color: #ffffff; -fx-border-color: #eeeeee; -fx-border-radius: 5;" text="Students">
+                      <Tab text="Students">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #ffffff;">
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
                                     <TableView fx:id="leftHandSideTable" layoutX="28.0" layoutY="23.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="8.0">
                                       <columns>
@@ -63,6 +63,7 @@
                                           <TableColumn fx:id="lhs_name" minWidth="30.0" prefWidth="75.0" text="Name" />
                                           <TableColumn fx:id="lhs_email" minWidth="30.0" prefWidth="75.0" text="Email" />
                                           <TableColumn fx:id="lhs_gpa" minWidth="30.0" prefWidth="75.0" text="GPA" />
+                                          <TableColumn editable="false" prefWidth="75.0" sortable="false" text="Action" />
                                       </columns>
                                        <columnResizePolicy>
                                           <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -72,9 +73,9 @@
                               </AnchorPane>
                         </content>
                       </Tab>
-                        <Tab style="-fx-background-color: #ffffff; -fx-border-color: #eeeeee; -fx-border-radius: 5;" text="GPA Ranked">
+                        <Tab text="GPA Ranked">
                            <content>
-                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #ffffff;">
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
                                     <TableView fx:id="rightHandSideTable" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="8.0">
                                        <columns>
@@ -82,6 +83,7 @@
                                           <TableColumn fx:id="rhs_name" minWidth="30.0" prefWidth="75.0" text="Name" />
                                           <TableColumn fx:id="rhs_email" minWidth="30.0" prefWidth="75.0" text="Email" />
                                           <TableColumn fx:id="rhs_gpa" minWidth="30.0" prefWidth="75.0" text="GPA" />
+                                          <TableColumn editable="false" prefWidth="75.0" sortable="false" text="Action" />
                                        </columns>
                                        <columnResizePolicy>
                                           <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
