@@ -4,12 +4,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.PriorityQueue;
 
 /**
@@ -111,6 +109,9 @@ public class Database {
         return values;
     }
     
+    /**
+     * Saves data to the file on disk
+     */
     public boolean save(String fp) throws IOException {        
         BufferedWriter bw = new BufferedWriter(new FileWriter(new File(fp)));
 
@@ -127,5 +128,28 @@ public class Database {
         bw.close();
 
         return true;
+    }
+
+    /**
+     * Updates the memory buffers with the new data
+     */
+    public void UpdateStudent(StudentTableRecord student) {
+
+        StudentTableRecord orignialRecord = students.get(student.getUUID().toString());
+        GPARecord originalGPA = new GPARecord(orignialRecord.getUUID(), orignialRecord.getGPA());
+        GPARecord newGPA = new GPARecord(student.getUUID(), student.getGPA());
+
+        gpaOrderedStudents.remove(originalGPA);
+        gpaOrderedStudents.add(newGPA);
+
+        students.put(student.getUUID().toString(), student);
+    }
+
+    /**
+     * Deletes a student from the memory buffers
+     */
+    public void DeleteStudent(StudentTableRecord student) {
+        students.remove(student.getUUID().toString());
+        gpaOrderedStudents.remove(new GPARecord(student.getUUID(), student.getGPA()));
     }
 }

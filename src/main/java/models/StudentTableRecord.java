@@ -51,6 +51,7 @@ public final class StudentTableRecord extends Student {
         setEmailProp(email);
         setGpaProp(GPA);
     }
+    
     public StudentTableRecord(Student student) {
         super(student.getUUID(), student.getName(), student.getEmail(), student.getGPA());
 

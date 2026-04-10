@@ -4,24 +4,30 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import models.Database;
 import models.Student;
 import models.StudentTableRecord;
@@ -68,8 +74,16 @@ public class TableViewController implements Initializable {
     private TabPane tabs;
     private Tab activeTab;
 
+    /**
+     * Lists of data pulled in from the database
+     */
     private ObservableList<StudentTableRecord> students = FXCollections.observableList(Database.getInstance().getStudentsAsList());
     private ObservableList<StudentTableRecord> gpaSortedStudends = FXCollections.observableList(Database.getInstance().getStudentsSortedByGpaAsList());
+
+    /**
+     * Search string set by user as they type
+     */
+    private String searchQuery = null;
 
     /**
      * Searching thread
@@ -82,6 +96,11 @@ public class TableViewController implements Initializable {
         LoadInitialStudentDataset();
         LoadInitialGPADataset();
 
+        // Setup row factories for context menu stuff
+        LHSTableRowFactory();
+        RHSTableRowFactory();
+        
+        // EH for buttons
         aboutButton.setOnAction(event -> RenderAboutWindow(event));
         addStudentButton.setOnAction(event -> RenderAddStudentWindow(event));
 
@@ -92,6 +111,9 @@ public class TableViewController implements Initializable {
             if(searchDataThread != null) {  
                 searchDataThread.interrupt();
             }
+
+            // Start a new thread for search
+            searchDataThread = SearchDataset(searchQuery);
         });
 
         // Set up the on change listner for searching the dataset loaded in the table
@@ -102,15 +124,20 @@ public class TableViewController implements Initializable {
             // dont search if its just empty 
             if(newValue.trim().length() > 0) {
                 // take the search value and auto search the dataset by the values
-                searchDataThread = SearchDataset(newValue);
+                searchQuery = newValue;
+                searchDataThread = SearchDataset(searchQuery);
             } else {
                 // Otherwise just reset the table
                 LoadInitialStudentDataset();
                 LoadInitialGPADataset();
+                searchQuery = null;
             }
         });
     }
 
+    /**
+     * Helper that just maps student table object to column for Students table
+     */
     private void setLHSTableData() {
         lhs_uuid.setCellValueFactory(data -> data.getValue().uuidProperty());
         lhs_name.setCellValueFactory(data -> data.getValue().nameProperty());
@@ -118,6 +145,9 @@ public class TableViewController implements Initializable {
         lhs_gpa.setCellValueFactory(data -> data.getValue().gpaProperty().asObject());
     }
 
+    /**
+     * Helper that just maps student table object to column for GPA table
+     */
     private void setRHSTableData() {
         rhs_uuid.setCellValueFactory(data -> data.getValue().uuidProperty());
         rhs_name.setCellValueFactory(data -> data.getValue().nameProperty());
@@ -125,6 +155,9 @@ public class TableViewController implements Initializable {
         rhs_gpa.setCellValueFactory(data -> data.getValue().gpaProperty().asObject());
     }
 
+    /**
+     * Renders the about project window
+     */
     private void RenderAboutWindow(ActionEvent event) {
         try {
             Stage stage = new Stage();
@@ -145,7 +178,10 @@ public class TableViewController implements Initializable {
         }
     }
 
-     private void RenderAddStudentWindow(ActionEvent event) {
+    /**
+     * Renders the add student window and sets up on save callback
+     */
+    private void RenderAddStudentWindow(ActionEvent event) {
         try {
             Stage stage = new Stage();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/AddStudent.fxml"));
@@ -153,10 +189,48 @@ public class TableViewController implements Initializable {
 
             ((AddStudentViewController)loader.getController()).setTableViewController(this);
 
+            ((AddStudentViewController)loader.getController()).SetOnSaveCallback((Student student) -> {
+                StudentTableRecord temp = new StudentTableRecord(student);
+
+                Database.getInstance().createStudent(temp);
+            
+                students.add(temp);
+                gpaSortedStudends.add(temp);
+            });
+
             Scene scene = new Scene(root);
             
 
             stage.setTitle("Add Student");
+            stage.setScene(scene);
+            stage.initOwner(aboutButton.getScene().getWindow());
+            stage.setResizable(false);
+            stage.initModality(Modality.WINDOW_MODAL);
+
+            stage.show();
+        } catch (IOException ex) {
+            System.out.println("Failed to load Add Student window");
+        }
+    }
+
+    /**
+     * Renders the edit student window (same fxml as add student) and sets the save callback
+     */
+    private void RenderEditStudentView(StudentTableRecord studentTableRecord) {
+        try {
+            Stage stage = new Stage();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Views/AddStudent.fxml"));
+            Parent root = loader.load();
+
+            ((AddStudentViewController)loader.getController()).setTableViewController(this);
+            ((AddStudentViewController)loader.getController()).setDefaultValues(studentTableRecord);
+            ((AddStudentViewController)loader.getController()).SetOnSaveCallback((Student student) -> {
+                UpdateStudent(studentTableRecord, student);
+            });
+
+            Scene scene = new Scene(root);
+
+            stage.setTitle("Edit Student - " + studentTableRecord.getName());
             stage.setScene(scene);
             stage.initOwner(aboutButton.getScene().getWindow());
             stage.setResizable(false);
@@ -248,10 +322,124 @@ public class TableViewController implements Initializable {
         setRHSTableData();
     }
 
+    /**
+     * Helper to add a new student into the database
+     */
     public void AddNewStudent(Student student) {
         students.add(new StudentTableRecord(student));
         gpaSortedStudends.add(new StudentTableRecord(student));
+    }
+
+    /**
+     * Helper to update a student in the databse
+     */
+    public void UpdateStudent(StudentTableRecord studentTableRecord, Student newStudent) {
+        // Generate a new temp record
+        StudentTableRecord temp = new StudentTableRecord(newStudent);
+
+        // Update said record in the db
+        Database.getInstance().UpdateStudent(temp);
         
-        Database.getInstance().createStudent(student);
+        // Remove the original record from the temp
+        students.remove(studentTableRecord);
+        gpaSortedStudends.remove(studentTableRecord);
+
+        rightHandSideTable.getItems().remove(studentTableRecord);
+        leftHandSideTable.getItems().remove(studentTableRecord);
+
+        students.add(temp);
+        gpaSortedStudends.add(temp);
+        
+        // rightHandSideTable.getItems().add(temp);
+        // leftHandSideTable.getItems().add(temp);
+    }
+
+    /**
+     * Handles the context menu and the respective on click events for the Students table
+     */
+    public void LHSTableRowFactory() {
+        leftHandSideTable.setRowFactory(new Callback<TableView<StudentTableRecord>, TableRow<StudentTableRecord>>() {
+            @Override
+            public TableRow<StudentTableRecord> call(TableView<StudentTableRecord> tableView) {
+                final TableRow<StudentTableRecord> row = new TableRow<>();
+                final ContextMenu rowMenu = new ContextMenu();
+
+                MenuItem editItem = new MenuItem("Edit");
+                MenuItem removeItem = new MenuItem("Delete");
+                
+                removeItem.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        HandleRemoveStudent(row);
+                    }
+                });
+
+                editItem.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        RenderEditStudentView(row.getItem());
+                    }
+                });
+
+                rowMenu.getItems().addAll(editItem, removeItem);
+
+                row.contextMenuProperty().bind(
+                    Bindings.when(Bindings.isNotNull(row.itemProperty()))
+                    .then(rowMenu)
+                    .otherwise((ContextMenu)null));
+                    return row;
+                }
+        });
+    }
+
+    /**
+     * Handles the context menu and the respective on click events for the GPA table
+     */
+    public void RHSTableRowFactory() {
+        rightHandSideTable.setRowFactory(new Callback<TableView<StudentTableRecord>, TableRow<StudentTableRecord>>() {
+            @Override
+            public TableRow<StudentTableRecord> call(TableView<StudentTableRecord> tableView) {
+                final TableRow<StudentTableRecord> row = new TableRow<>();
+                final ContextMenu rowMenu = new ContextMenu();
+
+                MenuItem editItem = new MenuItem("Edit");
+                MenuItem removeItem = new MenuItem("Delete");
+                
+                removeItem.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        HandleRemoveStudent(row);
+                    }
+                });
+
+                editItem.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        RenderEditStudentView(row.getItem());
+                    }
+                });
+
+                rowMenu.getItems().addAll(editItem, removeItem);
+
+                row.contextMenuProperty().bind(
+                    Bindings.when(Bindings.isNotNull(row.itemProperty()))
+                    .then(rowMenu)
+                    .otherwise((ContextMenu)null));
+                    return row;
+                }
+        });
+    }
+
+    /**
+     * Helper to remove a student from the database
+     */
+    private void HandleRemoveStudent(TableRow<StudentTableRecord> row) {
+        students.remove(row.getItem());
+        gpaSortedStudends.remove(row.getItem());
+
+        rightHandSideTable.getItems().remove(row.getItem());
+        leftHandSideTable.getItems().remove(row.getItem());
+
+        Database.getInstance().DeleteStudent(row.getItem());
     }
 }
