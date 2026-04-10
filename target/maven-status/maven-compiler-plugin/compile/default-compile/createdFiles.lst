@@ -1,7 +1,9 @@
 controllers/TableViewController$2$1.class
 models/Student.class
 controllers/AddStudentViewController.class
+controllers/TableViewController$3$2.class
 controllers/TableViewController$2$2.class
+controllers/TableViewController$3.class
 models/StudentTableRecord.class
 controllers/TableViewController.class
 models/GPARecord.class
@@ -13,6 +15,7 @@ controllers/TableViewController$1.class
 structures/Hashtable.class
 StudentManager$1.class
 controllers/AddStudentViewController$CB.class
+controllers/TableViewController$3$1.class
 structures/Hashtable$Node.class
 utils/DataParser.class
 utils/DataGen.class
