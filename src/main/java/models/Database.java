@@ -5,17 +5,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.PriorityQueue;
+import structures.Hashtable;
 
 /**
  * Singleton object which acts as the "Database" to interface with the records file
  */
 public class Database {
     private static Database instance;
-    private Hashtable<String, StudentTableRecord> students = new Hashtable<>();
+    private Hashtable<String, StudentTableRecord> students = new Hashtable<>(100_000);
     private PriorityQueue<GPARecord> gpaOrderedStudents = new PriorityQueue<>();
     
 

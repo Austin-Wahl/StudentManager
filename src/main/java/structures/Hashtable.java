@@ -1,6 +1,7 @@
 package structures;
+
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.function.BiConsumer;
 
 public class Hashtable <K, V> {
     /**
@@ -17,6 +18,7 @@ public class Hashtable <K, V> {
             this.next = next;      
         }
     }
+
     private ArrayList<Node<K,V>> nodes;
     private int size;
     private int capacity;
@@ -30,8 +32,6 @@ public class Hashtable <K, V> {
         this.capacity = capacity;
 
         // instantiate arrays
-        // this.keys = (K[]) new Object[capacity];
-        // this.values = (V[]) new Object[capacity];
         this.nodes = new ArrayList<>(capacity);
         for(int i = 0; i < capacity; i++) nodes.add(null);
     }
@@ -58,7 +58,7 @@ public class Hashtable <K, V> {
        Node<K,V> n = nodes.get(index);
     
        while(n != null) {
-        if(n.key == key) return n.value;
+        if(n.key.equals(key)) return n.value;
 
         n = n.next;
        }
@@ -82,7 +82,7 @@ public class Hashtable <K, V> {
 
         // check if the key is already in the list
         while(n != null) {
-            if(n.key == key) {
+            if(n.key.equals(key)) {
                 n.value = value;
                 return value;
             }
@@ -128,23 +128,77 @@ public class Hashtable <K, V> {
     /**
      * Removes a value from the map
      */
-    public V remove(K key, V value) {
-        return null;
+    public V remove(K key) {
+        int index = computeListIndex(key);
+        Node<K,V> n = nodes.get(index);
+        Node<K,V> previous = null;
+
+        // While the current bucket exists
+        while (n != null) {
+            // If the buckets key == key
+            if (n.key.equals(key)) {
+                V removed = n.value;
+                // If previous is null (so first node in a bucket)
+                if (previous == null) {
+                    // Set the bucket = to the next bucket
+                    nodes.set(index, n.next); 
+                } else {
+                    // Otherwise, set the previous bucket = to the next bucket
+                    previous.next = n.next; 
+                }
+                size--;
+                return removed;
+            }
+            previous = n;
+            n = n.next;
+        }
+
+        // If the nodes not found just return null
+        return null; 
     }
     /**
      * Replaces an existing value if it exists. If the key is not present, then no value is inserted and null is returned
      */
     public boolean replace(K key, V value) {
-        return true;
+        // compute the index
+        int index = computeListIndex(key);
+        Node<K,V> n = nodes.get(index);
+
+        // check if the key is already in the list
+        while(n != null) {
+            if(n.key.equals(key)) {
+                n.value = value;
+                return true;
+            }
+            n = n.next;
+        }
+
+        return false;
     }
     /**
      * Returns a collection of the values of the map
      */
-    public Collection<V> values() {
-        return null;
+    public ArrayList<V> values() {
+        ArrayList<V> values = new ArrayList<V>();
+
+        for(Node<K,V> node : this.nodes) {
+            Node<K,V> n = node;
+            while(n != null) {
+                values.add(n.value);
+                n = n.next;
+            }
+        }
+
+        return values;
     }
 
-    // public void forEach(BiConsumer<? super K,? super V> action) {
-    //     for(nodes.)
-    // }
+    public void forEach(BiConsumer<K,V> action) {
+         for(Node<K,V> node : this.nodes) {
+            Node<K,V> n = node;
+            while(n != null) {
+                action.accept(n.key, n.value);
+                n = n.next;
+            }
+        }
+    }
 }
