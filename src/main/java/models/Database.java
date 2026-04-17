@@ -5,9 +5,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.PriorityQueue;
+
 import structures.Hashtable;
 
 /**
@@ -63,8 +63,8 @@ public class Database {
     /**
      * Returns students ordered by GPA. Asc order.
      */
-    public LinkedHashMap<String, StudentTableRecord> getGPAOrderedStudents() {
-        LinkedHashMap<String, StudentTableRecord> temp = new LinkedHashMap<>();
+    public Hashtable<String, StudentTableRecord> getGPAOrderedStudents() {
+        Hashtable<String, StudentTableRecord> temp = new Hashtable<>(100_000);
         PriorityQueue<GPARecord> tempStudends = new PriorityQueue<>(this.gpaOrderedStudents);
 
         while(!tempStudends.isEmpty()) {
@@ -95,7 +95,7 @@ public class Database {
      * Returns a list of students as a list
      */
     public List<StudentTableRecord> getStudentsAsList() {
-        List<StudentTableRecord> values =  new ArrayList<StudentTableRecord>(this.students.values());
+        List<StudentTableRecord> values =  new ArrayList<>(this.students.values());
 
         return values;
     }
@@ -104,7 +104,7 @@ public class Database {
      * Returns a List of students sorted by GPA
      */
     public List<StudentTableRecord> getStudentsSortedByGpaAsList() {
-        List<StudentTableRecord> values =  new ArrayList<StudentTableRecord>(this.getGPAOrderedStudents().values());
+        List<StudentTableRecord> values =  new ArrayList<>(this.getGPAOrderedStudents().values());
 
         return values;
     }
