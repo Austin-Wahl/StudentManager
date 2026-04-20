@@ -7,6 +7,7 @@ controllers/TableViewController$3.class
 models/StudentTableRecord.class
 controllers/TableViewController.class
 models/GPARecord.class
+Launcher.class
 controllers/LoadingViewController.class
 models/Database.class
 controllers/TableViewController$2.class
