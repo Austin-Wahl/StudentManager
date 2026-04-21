@@ -6,9 +6,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
 
 import structures.Hashtable;
+import structures.PriorityQueue;
 
 /**
  * Singleton object which acts as the "Database" to interface with the records file
@@ -16,7 +16,7 @@ import structures.Hashtable;
 public class Database {
     private static Database instance;
     private Hashtable<String, StudentTableRecord> students = new Hashtable<>(100_000);
-    private PriorityQueue<GPARecord> gpaOrderedStudents = new PriorityQueue<>();
+    private PriorityQueue<GPARecord> gpaOrderedStudents = new PriorityQueue<>(100_000);
     
 
     private Database() {}
@@ -63,13 +63,26 @@ public class Database {
     /**
      * Returns students ordered by GPA. Asc order.
      */
-    public Hashtable<String, StudentTableRecord> getGPAOrderedStudents() {
-        Hashtable<String, StudentTableRecord> temp = new Hashtable<>(100_000);
-        PriorityQueue<GPARecord> tempStudends = new PriorityQueue<>(this.gpaOrderedStudents);
+    // public Hashtable<String, StudentTableRecord> getGPAOrderedStudents() {
+    //     Hashtable<String, StudentTableRecord> temp = new Hashtable<>(100_000);
+    //     PriorityQueue<GPARecord> tempStudends = new PriorityQueue<>(this.gpaOrderedStudents.queueList);
+
+    //     while(!tempStudends.isEmpty()) {
+    //         GPARecord record = tempStudends.poll();
+    //         temp.put(record.getUUID().toString(), students.get(record.getUUID().toString()));
+    //     }
+
+    //     return temp;
+    // }
+
+     public ArrayList<StudentTableRecord> getGPAOrderedStudents() {
+        // Hashtable<String, StudentTableRecord> temp = new Hashtable<>(100_000);
+        ArrayList<StudentTableRecord> temp = new ArrayList<>(100_000);
+        PriorityQueue<GPARecord> tempStudends = new PriorityQueue<>(this.gpaOrderedStudents.queueList);
 
         while(!tempStudends.isEmpty()) {
             GPARecord record = tempStudends.poll();
-            temp.put(record.getUUID().toString(), students.get(record.getUUID().toString()));
+            temp.add(students.get(record.getUUID().toString()));
         }
 
         return temp;
@@ -104,7 +117,7 @@ public class Database {
      * Returns a List of students sorted by GPA
      */
     public List<StudentTableRecord> getStudentsSortedByGpaAsList() {
-        List<StudentTableRecord> values =  new ArrayList<>(this.getGPAOrderedStudents().values());
+        List<StudentTableRecord> values =  new ArrayList<>(this.getGPAOrderedStudents());
 
         return values;
     }
