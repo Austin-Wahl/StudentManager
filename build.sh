@@ -52,7 +52,12 @@ function install_jdk() {
         }
         ;;
     MINGW64_NT*|MSYS_NT*|CYGWIN_NT*)
-        echo "Running on Windows"
+        {
+            choco install openjdk
+        } || {
+            echo "Please install choco to continue"
+            exit
+        }
         ;;
     *)
         echo "Other OS: $(uname -s). Not supported"
