@@ -1,4 +1,7 @@
+#!/usr/bin/env bash
 mkdir Releases
+
+restart = false
 
 function build_mac_intel() {
     {
@@ -30,8 +33,10 @@ function build_windows() {
     {
         echo "BUILDING WINDOWS"
         mvn clean package
-        jpackage --input target/ --name StudentManager --main-jar studentmanager-1.0-SNAPSHOT.jar --main-class Launcher --type msi
-        mv ./StudentManager-1.0.msi Releases/StudentManager-1.0-windows.msi
+	rm -rf ./StudentManager
+        jpackage --input target/ --name StudentManager --main-jar studentmanager-1.0-SNAPSHOT.jar --main-class Launcher --type app-image
+        mv -f ./StudentManager/StudentManager.exe Releases/StudentManager.exe
+        rm -rf ./StudentManager
         echo "SUCCESS BUILDING WINDOWS"
     } || {
         echo "FAILED BUILD WINDOWS"
@@ -52,6 +57,9 @@ function install_jdk() {
         }
         ;;
     MINGW64_NT*|MSYS_NT*|CYGWIN_NT*)
+        {
+            java -version
+        } || 
         {
             choco install openjdk
         } || {
@@ -83,6 +91,7 @@ function install_maven() {
         } || {
             echo "Installing Maven Package Manager"
             choco install maven
+	    $restart = true
         }
         ;;
     *)
@@ -115,10 +124,34 @@ function build() {
     esac
 }
 
+function install_wix() {
+     case "$(uname -s)" in
+    MINGW64_NT*|MSYS_NT*|CYGWIN_NT*)
+        echo "Running on Windows"
+        choco install wixtoolset || {
+            echo "Failed to install wiztoolset"
+            exit
+        }
+
+        ;;
+    *)
+        echo "Other OS: $(uname -s). Not supported"
+        ;;
+    esac
+}
+
 # first install jck
 install_jdk
 # then install maven
 install_maven
+# install wix
+install_wix
+
+if [ "$restart" = "true" ]; then
+    echo "Deps installed. Please rerun the script."
+    exit 0
+fi
+
 # finally, build the stuff
 build
 exit
