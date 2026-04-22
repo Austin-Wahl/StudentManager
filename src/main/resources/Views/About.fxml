@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
    <children>
@@ -35,7 +36,7 @@
                               <Font size="11.0" />
                            </font>
                         </Text>
-                        <Text  layoutX="16.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hash Map - Stores students by ID for easy searching" wrappingWidth="214.93408203125">
+                        <Text layoutX="16.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hash Map - Stores students by ID for easy searching" wrappingWidth="214.93408203125">
                            <font>
                               <Font size="11.0" />
                            </font>
@@ -84,5 +85,10 @@
             </HBox>
          </children>
       </VBox>
+      <ImageView blendMode="OVERLAY" fitHeight="44.0" fitWidth="41.0" layoutX="554.0" layoutY="354.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../assets/images/secret-funnie.gif" />
+         </image>
+      </ImageView>
    </children>
 </AnchorPane>
