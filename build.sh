@@ -8,7 +8,7 @@ function build_mac_intel() {
         export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home
         echo "BUILDING MAC OS INTEL"
         arch -x86_64 $(which mvn) clean package
-        arch -x86_64 /Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home/bin/jpackage --input target/ --name StudentManager --main-jar studentmanager-1.0-SNAPSHOT.jar --main-class Launcher --type dmg
+        arch -x86_64 /Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home/bin/jpackage --input target/ --name StudentManager --main-jar studentmanager-1.0-SNAPSHOT.jar --main-class Launcher --type dmg --icon ./src/main/resources/assets/images/icon.icns
         mv ./StudentManager-1.0.dmg Releases/StudentManager-1.0-mac-x86.dmg
         echo "SUCCESS BUILDING MAC OS INTEL"
     } || {
@@ -20,7 +20,7 @@ function build_mac_silicon() {
 {
         echo "BUILDING MAC OS APPLE SILICON"
         arch -x86_64 $(which mvn) clean package
-        jpackage --input target/ --name StudentManager --main-jar studentmanager-1.0-SNAPSHOT.jar --main-class Launcher --type dmg
+        jpackage --input target/ --name StudentManager --main-jar studentmanager-1.0-SNAPSHOT.jar --main-class Launcher --type dmg --icon ./src/main/resources/assets/images/icon.icns
         mv ./StudentManager-1.0.dmg Releases/StudentManager-1.0-mac-silicon.dmg
         echo "SUCCESS BUILDING MAC OS APPLE SILICON"
     } || {
@@ -33,10 +33,8 @@ function build_windows() {
     {
         echo "BUILDING WINDOWS"
         mvn clean package
-	rm -rf ./StudentManager
-        jpackage --input target/ --name StudentManager --main-jar studentmanager-1.0-SNAPSHOT.jar --main-class Launcher --type app-image
-        mv -f ./StudentManager/StudentManager.exe Releases/StudentManager.exe
-        rm -rf ./StudentManager
+	    rm -rf ./StudentManager
+        jpackage --type msi --name StudentManager --input target/ --dest ./Releases/ --main-jar studentmanager-1.0-SNAPSHOT.jar --main-class Launcher --win-shortcut --win-menu --app-version "1.0" -icon ./src/main/resources/assets/images/icon.ico
         echo "SUCCESS BUILDING WINDOWS"
     } || {
         echo "FAILED BUILD WINDOWS"
