@@ -62,6 +62,20 @@ public class TableViewController implements Initializable {
     private TableColumn<StudentTableRecord, Double> rhs_gpa;
 
     /**
+     * Top five percent table
+     */
+    @FXML
+    private TableView<StudentTableRecord> topFivePercent;
+    @FXML
+    private TableColumn<StudentTableRecord, String> fp_uuid;
+    @FXML
+    private TableColumn<StudentTableRecord, String> fp_name;
+    @FXML
+    private TableColumn<StudentTableRecord, String> fp_email;
+    @FXML
+    private TableColumn<StudentTableRecord, Double> fp_gpa;
+
+    /**
      * Misc components
      */
     @FXML
@@ -79,6 +93,7 @@ public class TableViewController implements Initializable {
      */
     private ObservableList<StudentTableRecord> students = FXCollections.observableList(Database.getInstance().getStudentsAsList());
     private ObservableList<StudentTableRecord> gpaSortedStudends = FXCollections.observableList(Database.getInstance().getStudentsSortedByGpaAsList());
+    private ObservableList<StudentTableRecord> top5PercentStudents = FXCollections.observableList(Database.getInstance().getTopFivePercentStudents());
 
     /**
      * Search string set by user as they type
@@ -95,10 +110,13 @@ public class TableViewController implements Initializable {
         // Setup tables with initial values
         LoadInitialStudentDataset();
         LoadInitialGPADataset();
+        LoadInitial5PercentDataset();
 
         // Setup row factories for context menu stuff
         LHSTableRowFactory();
         RHSTableRowFactory();
+        Top5PercentTableRowFactory();
+        
         
         // EH for buttons
         aboutButton.setOnAction(event -> RenderAboutWindow(event));
@@ -130,6 +148,7 @@ public class TableViewController implements Initializable {
                 // Otherwise just reset the table
                 LoadInitialStudentDataset();
                 LoadInitialGPADataset();
+                LoadInitial5PercentDataset();
                 searchQuery = null;
             }
         });
@@ -153,6 +172,16 @@ public class TableViewController implements Initializable {
         rhs_name.setCellValueFactory(data -> data.getValue().nameProperty());
         rhs_email.setCellValueFactory(data -> data.getValue().emailProperty());
         rhs_gpa.setCellValueFactory(data -> data.getValue().gpaProperty().asObject());
+    }
+
+    /**
+     * Helper that just maps student table object to column for GPA table
+     */
+    private void setT5PTableData() {
+        fp_uuid.setCellValueFactory(data -> data.getValue().uuidProperty());
+        fp_name.setCellValueFactory(data -> data.getValue().nameProperty());
+        fp_email.setCellValueFactory(data -> data.getValue().emailProperty());
+        fp_gpa.setCellValueFactory(data -> data.getValue().gpaProperty().asObject());
     }
 
     /**
@@ -196,6 +225,11 @@ public class TableViewController implements Initializable {
             
                 students.add(temp);
                 gpaSortedStudends.add(temp);
+
+                if(Database.getInstance().willStudentExistIntTop5Percent(temp)) {
+                    top5PercentStudents.remove(top5PercentStudents.size() - 1);
+                    top5PercentStudents.add(temp);
+                }
             });
 
             Scene scene = new Scene(root);
@@ -254,16 +288,21 @@ public class TableViewController implements Initializable {
                     System.out.println("Canceling Thread");
                     if(activeTab.getText().equals("Students")) {
                         LoadInitialStudentDataset();
-                    } else {
+                    } else if(activeTab.getText().equals("GPA Ranked")) {
                         LoadInitialGPADataset();
+                    } else {
+                        LoadInitial5PercentDataset();
                     }
                 }
 
                 if(activeTab.getText().equals("Students")) {
                     SearchStudentsTable(valueToSearch);
-                } else {
+                } else if(activeTab.getText().equals("GPA Ranked")) {
                     SearchGPATable(valueToSearch);
+                } else {
+                    SearchTop5Percent(valueToSearch);
                 }
+
 
                 // Get the current data in the table
                 ObservableList<StudentTableRecord> data =  FXCollections.observableArrayList();
@@ -305,6 +344,20 @@ public class TableViewController implements Initializable {
         rightHandSideTable.setItems(data);   
     }
 
+     /**
+     * Helper that specifically searches the data loaded into the top 5% table and then updates the FX table with data matching the keyword search
+     */
+    private void SearchTop5Percent(String value) {
+        ObservableList<StudentTableRecord> data = FXCollections.observableArrayList();
+        for(StudentTableRecord student : topFivePercent.getItems()) {
+            if(student.getName().contains(value)) data.add(student);
+            else if(student.getEmailProp().contains(value)) data.add(student);
+            else if(student.getUUID().toString().contains(value)) data.add(student);
+            else if(Double.toString(student.getGPA()).contains(value)) data.add(student);
+        }
+        topFivePercent.setItems(data);   
+    }
+
     /**
      * Helper that loads the student dataset into the students table
      */
@@ -323,11 +376,25 @@ public class TableViewController implements Initializable {
     }
 
     /**
+     * Helper that loads the top 5% dataset into the table
+     */
+    private void LoadInitial5PercentDataset() {
+        topFivePercent.setItems(top5PercentStudents);
+        setT5PTableData();
+    }
+
+    /**
      * Helper to add a new student into the database
      */
     public void AddNewStudent(Student student) {
-        students.add(new StudentTableRecord(student));
-        gpaSortedStudends.add(new StudentTableRecord(student));
+        StudentTableRecord temp = new StudentTableRecord(student);
+        students.add(temp);
+        gpaSortedStudends.add(temp);
+
+        // if the new student will be in t5%, then add them
+        if(Database.getInstance().willStudentExistIntTop5Percent(temp)) {
+            Database.getInstance().addNewTop5Student(temp);
+        }
     }
 
     /**
@@ -349,9 +416,16 @@ public class TableViewController implements Initializable {
 
         students.add(temp);
         gpaSortedStudends.add(temp);
+
+        top5PercentStudents.remove(studentTableRecord);
+        topFivePercent.getItems().remove(studentTableRecord);
+
+        // Special logic for top 5 percent becuase its not sure to exist 
+        if(Database.getInstance().willStudentExistIntTop5Percent(temp)) {
+            top5PercentStudents.add(temp);
+        }
         
-        // rightHandSideTable.getItems().add(temp);
-        // leftHandSideTable.getItems().add(temp);
+
     }
 
     /**
@@ -431,14 +505,54 @@ public class TableViewController implements Initializable {
     }
 
     /**
+     * Handles the context menu and the respective on click events for the top 5 percent table
+     */
+    public void Top5PercentTableRowFactory() {
+        topFivePercent.setRowFactory(new Callback<TableView<StudentTableRecord>, TableRow<StudentTableRecord>>() {
+            @Override
+            public TableRow<StudentTableRecord> call(TableView<StudentTableRecord> tableView) {
+                final TableRow<StudentTableRecord> row = new TableRow<>();
+                final ContextMenu rowMenu = new ContextMenu();
+
+                MenuItem editItem = new MenuItem("Edit");
+                MenuItem removeItem = new MenuItem("Delete");
+                
+                removeItem.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        HandleRemoveStudent(row);
+                    }
+                });
+
+                editItem.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        RenderEditStudentView(row.getItem());
+                    }
+                });
+
+                rowMenu.getItems().addAll(editItem, removeItem);
+
+                row.contextMenuProperty().bind(
+                    Bindings.when(Bindings.isNotNull(row.itemProperty()))
+                    .then(rowMenu)
+                    .otherwise((ContextMenu)null));
+                    return row;
+                }
+        });
+    }
+
+    /**
      * Helper to remove a student from the database
      */
     private void HandleRemoveStudent(TableRow<StudentTableRecord> row) {
         students.remove(row.getItem());
         gpaSortedStudends.remove(row.getItem());
+        top5PercentStudents.remove(row.getItem());
 
         rightHandSideTable.getItems().remove(row.getItem());
         leftHandSideTable.getItems().remove(row.getItem());
+        topFivePercent.getItems().remove(row.getItem());
 
         Database.getInstance().DeleteStudent(row.getItem());
     }

@@ -17,7 +17,9 @@ public class Database {
     private static Database instance;
     private Hashtable<String, StudentTableRecord> students = new Hashtable<>(100_000);
     private PriorityQueue<GPARecord> gpaOrderedStudents = new PriorityQueue<>(100_000);
-    
+    private PriorityQueue.CustomComparator<GPARecord> cc = (a, b) -> Double.compare(b.getGPA(), a.getGPA());
+    private PriorityQueue<GPARecord> maxGpaStudents = new PriorityQueue<>(cc); //Abel -> Declararation of new priority queue that uses a max heap, used for returning students by descending GPA
+
 
     private Database() {}
 
@@ -38,6 +40,7 @@ public class Database {
         students.put(student.getUUID().toString(), student);
         GPARecord temp = new GPARecord(student.getUUID(), student.getGPA());
         gpaOrderedStudents.add(temp);
+        maxGpaStudents.add(temp);       // max-heap (new behavior)
     }
 
     /**
@@ -60,20 +63,49 @@ public class Database {
         return this.students;
     }
 
-    /**
-     * Returns students ordered by GPA. Asc order.
-     */
-    // public Hashtable<String, StudentTableRecord> getGPAOrderedStudents() {
-    //     Hashtable<String, StudentTableRecord> temp = new Hashtable<>(100_000);
-    //     PriorityQueue<GPARecord> tempStudends = new PriorityQueue<>(this.gpaOrderedStudents.queueList);
+    public Hashtable<String, StudentTableRecord> getStudentsByDescendingGPA() {
+         Hashtable<String, StudentTableRecord> temp = new Hashtable<>(100_000);
 
-    //     while(!tempStudends.isEmpty()) {
-    //         GPARecord record = tempStudends.poll();
-    //         temp.put(record.getUUID().toString(), students.get(record.getUUID().toString()));
-    //     }
+        // copy max heap so we don’t destroy original
+         PriorityQueue<GPARecord> tempStudents =
+         new PriorityQueue<>(this.maxGpaStudents.queueList);
 
-    //     return temp;
-    // }
+         while (!tempStudents.isEmpty()) {
+            GPARecord record = tempStudents.poll();
+
+            temp.put(
+            record.getUUID().toString(),
+            students.get(record.getUUID().toString())
+            );
+        }
+
+         return temp;
+    } //-> Abel: method that returns a LinkedHashMap that contains student records sorted by GPA in descending order
+
+    public ArrayList<StudentTableRecord> getTopFivePercentStudents() {
+        ArrayList<StudentTableRecord> result = new ArrayList<>();
+
+        if (students.isEmpty()) {
+            return result;
+        }
+
+        PriorityQueue<GPARecord> tempStudents = new PriorityQueue<>(this.maxGpaStudents.queueList, cc);
+
+        int totalStudents = students.size();
+        int topCount = (int) Math.ceil(totalStudents * 0.05);
+
+        if (topCount < 1) {
+            topCount = 1;
+        }
+
+        for (int i = 0; i < topCount && !tempStudents.isEmpty(); i++) {
+            GPARecord record = tempStudents.poll();
+            StudentTableRecord student = students.get(record.getUUID().toString());
+            result.add(student);
+        }
+
+        return result;
+    }//-> Abel: method that returns an arrayList of the top 5 percent student records sorted by GPA
 
      public ArrayList<StudentTableRecord> getGPAOrderedStudents() {
         // Hashtable<String, StudentTableRecord> temp = new Hashtable<>(100_000);
@@ -86,6 +118,25 @@ public class Database {
         }
 
         return temp;
+    }
+
+    public boolean doesStudentExistInTop5Percent(StudentTableRecord studentToFind) {
+        GPARecord tempRecord = new GPARecord(studentToFind.getUUID(), studentToFind.getGPA());
+        return this.maxGpaStudents.queueList.indexOf(tempRecord) > -1;
+    }
+
+    public boolean willStudentExistIntTop5Percent(StudentTableRecord studentToFind) {
+
+        ArrayList<StudentTableRecord> fivePercent = getTopFivePercentStudents();
+
+        // Only exist if the students GPA is larger than the list student in top 5
+        return studentToFind.getGPA() > fivePercent.getLast().getGPA();
+    }
+
+    public void addNewTop5Student(StudentTableRecord newStudent) {
+        // remove the last student becuse this function only runs if the new student exists in t5
+        this.maxGpaStudents.removeLast();
+        this.maxGpaStudents.add(new GPARecord(newStudent.getUUID(), newStudent.getGPA()));
     }
 
     /**
@@ -164,5 +215,6 @@ public class Database {
     public void DeleteStudent(StudentTableRecord student) {
         students.remove(student.getUUID().toString());
         gpaOrderedStudents.remove(new GPARecord(student.getUUID(), student.getGPA()));
+        maxGpaStudents.remove(new GPARecord(student.getUUID(), student.getGPA()));
     }
 }
