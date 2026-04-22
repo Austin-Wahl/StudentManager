@@ -36,7 +36,7 @@
                               <Font size="11.0" />
                            </font>
                         </Text>
-                        <Text layoutX="16.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hash Map - Stores students by ID for easy searching" wrappingWidth="214.93408203125">
+                        <Text layoutX="16.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hashtable - Stores students by ID for easy searching" wrappingWidth="214.93408203125">
                            <font>
                               <Font size="11.0" />
                            </font>
