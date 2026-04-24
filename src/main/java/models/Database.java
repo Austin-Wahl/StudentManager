@@ -133,6 +133,10 @@ public class Database {
         return studentToFind.getGPA() > fivePercent.getLast().getGPA();
     }
 
+     public boolean willStudentBeInAcedemicProbation(StudentTableRecord studentToFind) {
+        return studentToFind.getGPA() < 2;
+    }
+
     public void addNewTop5Student(StudentTableRecord newStudent) {
         // remove the last student becuse this function only runs if the new student exists in t5
         this.maxGpaStudents.removeLast();
@@ -216,5 +220,29 @@ public class Database {
         students.remove(student.getUUID().toString());
         gpaOrderedStudents.remove(new GPARecord(student.getUUID(), student.getGPA()));
         maxGpaStudents.remove(new GPARecord(student.getUUID(), student.getGPA()));
+    }
+
+    public ArrayList<StudentTableRecord> getStudentsSortedByGpaHighToLow() {
+        ArrayList<StudentTableRecord> values =  this.getGPAOrderedStudents();
+        ArrayList<StudentTableRecord> reverse = new ArrayList<>();
+
+        for(int i = values.size()-1; i >= 0; i--) {
+            reverse.add(values.get(i));
+        }        
+
+        return reverse;
+    }
+
+    /**
+     * Returns a list of students in academic probation (GPA below 2.0)
+     */
+    public ArrayList<StudentTableRecord> getStudentsInAcademicProbation() {
+        ArrayList<StudentTableRecord> probationStudents = new ArrayList<>();
+        students.forEach((key, value) -> {
+            if (value.getGPA() < 2.0) {
+                probationStudents.add(value);
+            }
+        });
+        return probationStudents;
     }
 }

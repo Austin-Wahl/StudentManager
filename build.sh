@@ -34,7 +34,7 @@ function build_windows() {
         echo "BUILDING WINDOWS"
         mvn clean package
 	    rm -rf ./StudentManager
-        jpackage --type msi --name StudentManager --input target/ --dest ./Releases/ --main-jar studentmanager-1.0-SNAPSHOT.jar --main-class Launcher --win-shortcut --win-menu --app-version "1.0" -icon ./src/main/resources/assets/images/icon.ico
+        jpackage --type msi --name StudentManager --input target/ --dest ./Releases/ --main-jar studentmanager-1.0-SNAPSHOT.jar --main-class Launcher --win-shortcut --win-menu --app-version "1.0" --icon ./src/main/resources/assets/images/icon.ico
         echo "SUCCESS BUILDING WINDOWS"
     } || {
         echo "FAILED BUILD WINDOWS"

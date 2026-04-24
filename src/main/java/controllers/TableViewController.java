@@ -76,6 +76,34 @@ public class TableViewController implements Initializable {
     private TableColumn<StudentTableRecord, Double> fp_gpa;
 
     /**
+     * GPA High to Low
+     */
+    @FXML
+    private TableView<StudentTableRecord> gpa_high;
+    @FXML
+    private TableColumn<StudentTableRecord, String> gpa_uuid;
+    @FXML
+    private TableColumn<StudentTableRecord, String> gpa_name;
+    @FXML
+    private TableColumn<StudentTableRecord, String> gpa_email;
+    @FXML
+    private TableColumn<StudentTableRecord, Double> gpa_gpa;
+
+    /**
+     * Probation
+     */
+    @FXML
+    private TableView<StudentTableRecord> probation;
+    @FXML
+    private TableColumn<StudentTableRecord, String> p_uuid;
+    @FXML
+    private TableColumn<StudentTableRecord, String> p_name;
+    @FXML
+    private TableColumn<StudentTableRecord, String> p_email;
+    @FXML
+    private TableColumn<StudentTableRecord, Double> p_gpa;
+
+    /**
      * Misc components
      */
     @FXML
@@ -94,6 +122,8 @@ public class TableViewController implements Initializable {
     private ObservableList<StudentTableRecord> students = FXCollections.observableList(Database.getInstance().getStudentsAsList());
     private ObservableList<StudentTableRecord> gpaSortedStudends = FXCollections.observableList(Database.getInstance().getStudentsSortedByGpaAsList());
     private ObservableList<StudentTableRecord> top5PercentStudents = FXCollections.observableList(Database.getInstance().getTopFivePercentStudents());
+    private ObservableList<StudentTableRecord> gpaHighToLowStudents = FXCollections.observableList(Database.getInstance().getStudentsSortedByGpaHighToLow());
+    private ObservableList<StudentTableRecord> probationStudents = FXCollections.observableList(Database.getInstance().getStudentsInAcademicProbation());
 
     /**
      * Search string set by user as they type
@@ -111,11 +141,15 @@ public class TableViewController implements Initializable {
         LoadInitialStudentDataset();
         LoadInitialGPADataset();
         LoadInitial5PercentDataset();
+        LoadInitialGPAHighToLowDataset();
+        LoadInitialProbationDataset();
 
         // Setup row factories for context menu stuff
         LHSTableRowFactory();
         RHSTableRowFactory();
         Top5PercentTableRowFactory();
+        ProbationTableRowFactory();
+        GPAHighToLowTableRowFactory();
         
         
         // EH for buttons
@@ -149,6 +183,8 @@ public class TableViewController implements Initializable {
                 LoadInitialStudentDataset();
                 LoadInitialGPADataset();
                 LoadInitial5PercentDataset();
+                LoadInitialGPAHighToLowDataset();
+                LoadInitialProbationDataset();
                 searchQuery = null;
             }
         });
@@ -182,6 +218,26 @@ public class TableViewController implements Initializable {
         fp_name.setCellValueFactory(data -> data.getValue().nameProperty());
         fp_email.setCellValueFactory(data -> data.getValue().emailProperty());
         fp_gpa.setCellValueFactory(data -> data.getValue().gpaProperty().asObject());
+    }
+
+    /**
+     * Helper that just maps student table object to column for GPA HTL table
+     */
+    private void setGPAHighTableData() {
+        gpa_uuid.setCellValueFactory(data -> data.getValue().uuidProperty());
+        gpa_name.setCellValueFactory(data -> data.getValue().nameProperty());
+        gpa_email.setCellValueFactory(data -> data.getValue().emailProperty());
+        gpa_gpa.setCellValueFactory(data -> data.getValue().gpaProperty().asObject());
+    }
+
+     /**
+     * Helper that just maps student table object to column for Probation table
+     */
+    private void setProbationTableData() {
+        p_uuid.setCellValueFactory(data -> data.getValue().uuidProperty());
+        p_name.setCellValueFactory(data -> data.getValue().nameProperty());
+        p_email.setCellValueFactory(data -> data.getValue().emailProperty());
+        p_gpa.setCellValueFactory(data -> data.getValue().gpaProperty().asObject());
     }
 
     /**
@@ -229,6 +285,11 @@ public class TableViewController implements Initializable {
                 if(Database.getInstance().willStudentExistIntTop5Percent(temp)) {
                     top5PercentStudents.remove(top5PercentStudents.size() - 1);
                     top5PercentStudents.add(temp);
+                }
+
+                if(Database.getInstance().willStudentBeInAcedemicProbation(temp)) {
+                    probationStudents.add(temp);
+                    gpaHighToLowStudents.add(temp);
                 }
             });
 
@@ -290,7 +351,11 @@ public class TableViewController implements Initializable {
                         LoadInitialStudentDataset();
                     } else if(activeTab.getText().equals("GPA Ranked")) {
                         LoadInitialGPADataset();
-                    } else {
+                    } else if (activeTab.getText().equals("GPA Ranked High")) {
+                        LoadInitialGPAHighToLowDataset();
+                    } else if (activeTab.getText().equals("Probation")) {
+                        LoadInitialProbationDataset();
+                    }else {
                         LoadInitial5PercentDataset();
                     }
                 }
@@ -303,6 +368,17 @@ public class TableViewController implements Initializable {
                     SearchTop5Percent(valueToSearch);
                 }
 
+                if(activeTab.getText().equals("Students")) {
+                    SearchStudentsTable(valueToSearch);
+                } else if(activeTab.getText().equals("GPA Ranked")) {
+                    SearchGPATable(valueToSearch);
+                } else if (activeTab.getText().equals("GPA Ranked High")) {
+                    SearchGPAHTLTable(valueToSearch);
+                } else if (activeTab.getText().equals("Probation")) {
+                    SearchProbationTable(valueToSearch);
+                }else {
+                    SearchTop5Percent(valueToSearch);
+                }
 
                 // Get the current data in the table
                 ObservableList<StudentTableRecord> data =  FXCollections.observableArrayList();
@@ -359,6 +435,34 @@ public class TableViewController implements Initializable {
     }
 
     /**
+     * Helper that specifically searches the data loaded into the gpa htl table and then updates the FX table with data matching the keyword search
+     */
+    private void SearchGPAHTLTable(String value) {
+        ObservableList<StudentTableRecord> data = FXCollections.observableArrayList();
+        for(StudentTableRecord student : gpa_high.getItems()) {
+            if(student.getName().contains(value)) data.add(student);
+            else if(student.getEmailProp().contains(value)) data.add(student);
+            else if(student.getUUID().toString().contains(value)) data.add(student);
+            else if(Double.toString(student.getGPA()).contains(value)) data.add(student);
+        }
+        gpa_high.setItems(data);   
+    }
+
+    /**
+     * Helper that specifically searches the data loaded into the probation table and then updates the FX table with data matching the keyword search
+     */
+    private void SearchProbationTable(String value) {
+        ObservableList<StudentTableRecord> data = FXCollections.observableArrayList();
+        for(StudentTableRecord student : probation.getItems()) {
+            if(student.getName().contains(value)) data.add(student);
+            else if(student.getEmailProp().contains(value)) data.add(student);
+            else if(student.getUUID().toString().contains(value)) data.add(student);
+            else if(Double.toString(student.getGPA()).contains(value)) data.add(student);
+        }
+        probation.setItems(data);   
+    }
+
+    /**
      * Helper that loads the student dataset into the students table
      */
     private void LoadInitialStudentDataset() {
@@ -383,6 +487,22 @@ public class TableViewController implements Initializable {
         setT5PTableData();
     }
 
+     /**
+     * Helper that loads the GPA High to Low dataset into the table
+     */
+    private void LoadInitialGPAHighToLowDataset() {
+        gpa_high.setItems(gpaHighToLowStudents);
+        setGPAHighTableData();
+    }
+
+     /**
+     * Helper that loads the students in probation dataset into the table
+     */
+    private void LoadInitialProbationDataset() {
+        probation.setItems(probationStudents);
+        setProbationTableData();
+    }
+
     /**
      * Helper to add a new student into the database
      */
@@ -390,11 +510,18 @@ public class TableViewController implements Initializable {
         StudentTableRecord temp = new StudentTableRecord(student);
         students.add(temp);
         gpaSortedStudends.add(temp);
+        gpaHighToLowStudents.add(temp);
 
         // if the new student will be in t5%, then add them
         if(Database.getInstance().willStudentExistIntTop5Percent(temp)) {
             Database.getInstance().addNewTop5Student(temp);
         }
+
+         // Check if the student will be in probation and add them to the table if so
+        if(Database.getInstance().willStudentBeInAcedemicProbation(temp)) {
+            probationStudents.add(temp);
+        }
+        
     }
 
     /**
@@ -416,16 +543,27 @@ public class TableViewController implements Initializable {
 
         students.add(temp);
         gpaSortedStudends.add(temp);
+        gpaHighToLowStudents.add(temp);
 
         top5PercentStudents.remove(studentTableRecord);
         topFivePercent.getItems().remove(studentTableRecord);
 
+        probationStudents.remove(studentTableRecord);
+        probation.getItems().remove(studentTableRecord);
+
+        gpaHighToLowStudents.remove(studentTableRecord);
+        gpa_high.getItems().remove(studentTableRecord);
+
+        
         // Special logic for top 5 percent becuase its not sure to exist 
         if(Database.getInstance().willStudentExistIntTop5Percent(temp)) {
             top5PercentStudents.add(temp);
         }
         
-
+        // Check if the student will be in probation and add them to the table if so
+        if(Database.getInstance().willStudentBeInAcedemicProbation(temp)) {
+            probationStudents.add(temp);
+        }
     }
 
     /**
@@ -543,16 +681,96 @@ public class TableViewController implements Initializable {
     }
 
     /**
+     * Handles the context menu and the respective on click events for the top 5 percent table
+     */
+    public void GPAHighToLowTableRowFactory() {
+        gpa_high.setRowFactory(new Callback<TableView<StudentTableRecord>, TableRow<StudentTableRecord>>() {
+            @Override
+            public TableRow<StudentTableRecord> call(TableView<StudentTableRecord> tableView) {
+                final TableRow<StudentTableRecord> row = new TableRow<>();
+                final ContextMenu rowMenu = new ContextMenu();
+
+                MenuItem editItem = new MenuItem("Edit");
+                MenuItem removeItem = new MenuItem("Delete");
+                
+                removeItem.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        HandleRemoveStudent(row);
+                    }
+                });
+
+                editItem.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        RenderEditStudentView(row.getItem());
+                    }
+                });
+
+                rowMenu.getItems().addAll(editItem, removeItem);
+
+                row.contextMenuProperty().bind(
+                    Bindings.when(Bindings.isNotNull(row.itemProperty()))
+                    .then(rowMenu)
+                    .otherwise((ContextMenu)null));
+                    return row;
+                }
+        });
+    }
+
+    /**
+     * Handles the context menu and the respective on click events for the top 5 percent table
+     */
+    public void ProbationTableRowFactory() {
+        probation.setRowFactory(new Callback<TableView<StudentTableRecord>, TableRow<StudentTableRecord>>() {
+            @Override
+            public TableRow<StudentTableRecord> call(TableView<StudentTableRecord> tableView) {
+                final TableRow<StudentTableRecord> row = new TableRow<>();
+                final ContextMenu rowMenu = new ContextMenu();
+
+                MenuItem editItem = new MenuItem("Edit");
+                MenuItem removeItem = new MenuItem("Delete");
+                
+                removeItem.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        HandleRemoveStudent(row);
+                    }
+                });
+
+                editItem.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        RenderEditStudentView(row.getItem());
+                    }
+                });
+
+                rowMenu.getItems().addAll(editItem, removeItem);
+
+                row.contextMenuProperty().bind(
+                    Bindings.when(Bindings.isNotNull(row.itemProperty()))
+                    .then(rowMenu)
+                    .otherwise((ContextMenu)null));
+                    return row;
+                }
+        });
+    }
+
+    /**
      * Helper to remove a student from the database
      */
     private void HandleRemoveStudent(TableRow<StudentTableRecord> row) {
         students.remove(row.getItem());
         gpaSortedStudends.remove(row.getItem());
         top5PercentStudents.remove(row.getItem());
+        gpaHighToLowStudents.remove(row.getItem());
+        probationStudents.remove(row.getItem());
 
         rightHandSideTable.getItems().remove(row.getItem());
         leftHandSideTable.getItems().remove(row.getItem());
         topFivePercent.getItems().remove(row.getItem());
+        gpa_high.getItems().remove(row.getItem());
+        probation.getItems().remove(row.getItem());
 
         Database.getInstance().DeleteStudent(row.getItem());
     }
