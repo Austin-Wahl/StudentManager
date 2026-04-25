@@ -35,6 +35,20 @@ This program is bundled with JavaFX and the Java21 runtime and requires no exter
 - Mac OS Apple Silicon
 - Mac OS x86_64
 
+## For windows users
+
+This program is not digitally signed and will throw security warnings. If the MSI file is blocked from running, you'll need to follow the instructions listed by Defender.
+
+IMPORTANT: After running the MSI to install the program, StudentManager will NOT automatically run. You can run it by searching for it in the Start menu or running the shortcut.
+
+## Running in dev
+
+Use the following commands to run locally without building.
+
+`mvn install`
+
+`mvn clean javafx:run`
+
 ## Building the project
 
 Run the following command to build the repository from scratch:
@@ -70,3 +84,7 @@ These articles were used to help us build the structures and provided a great st
 
 1. PriorityQueue https://www.happycoders.eu/algorithms/implement-priority-queue-using-heap/
 2. Hashtable https://en.wikipedia.org/wiki/Hash_table and https://www.geeksforgeeks.org/java/implementing-our-own-hash-table-with-separate-chaining-in-java/
+
+# Pictures
+
+![alt text](pictures/showcase.jpg)
